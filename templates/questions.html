@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %} 
+Question #{{ question_num }}
+{% endblock %}
+
+{% block content %}
+
+<h1 class="mt-5">{{question.question}}</h1>
+<form action='/answer' method="POST">
+    {% for choice in question.choices %}
+    <p class="h5 mt-3"><input class="form-check-input" type='radio' 
+        name='answer' value="{{choice}}"> {{choice}}</p>
+    {% endfor %}
+    {% if question.allow_text %}
+    <textarea class="form-control w-25" name='text'></textarea>
+    {% endif %}
+    <button class="btn btn-success mt-3">Continue</button>
+
+</form>
+
+{% endblock %}
