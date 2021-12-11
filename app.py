@@ -1,18 +1,17 @@
-# from logging import debug
-from flask import Flask, request, render_template, redirect, session, flash
-from flask.helpers import make_response
+
+from flask import Flask, request, render_template, redirect, session, flash, make_response
+from werkzeug.exceptions import BadRequestKeyError
 from surveys import surveys
-# from flask_debugtoolbar import DebugToolbarExtension
+from flask_debugtoolbar import DebugToolbarExtension
 
 RESPONSES = 'responses'
 CURRENT_SURVEY = 'current_survey'
 
 app = Flask(__name__)
 
-app.config['SECRET_KEY'] = 'that-is-a-secret'
-
-# app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
-# debug = DebugToolbarExtension(app)
+app.config['SECRET_KEY'] = 'its-a-secret'
+app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
+debug = DebugToolbarExtension(app)
 
 
 @app.route('/')
@@ -49,9 +48,14 @@ def start_survey():
 @app.route('/answer', methods=['POST'])
 def handle_question():
     '''Save user response and redirect to the next question'''
-
+    choice = None
     #get the user's choice
-    choice = request.form['answer']
+    try:
+        choice = request.form['answer']
+    except BadRequestKeyError:
+        flash('Please select an answer!', 'error')
+        return redirect('/questions/0')
+
     text = request.form.get('text', "")
 
     # add this response to the list in the session
@@ -87,8 +91,8 @@ def display_question(questID):
         return redirect('/complete')
 
     if(len(responses) != questID):
-        # if Trying to access questions out of order display flash message
-        flash(f'Invalid question id: {questID}.')
+        # if Trying to access questions out of order - do not allow
+        # flash(f'Invalid question id: {questID}.')
         return redirect(f'/questions/{len(responses)}')
 
     question = survey.questions[questID]
@@ -106,6 +110,6 @@ def complete():
 
     #set the cookie so they can't redo the survey until it's done.
     response = make_response(html)
-    response.set_cookie(f'completed_{survey_id}', 'yes', max_age=60)
+    response.set_cookie(f'completed_{survey_id}', 'yes', max_age=0)
     return response
-
+    

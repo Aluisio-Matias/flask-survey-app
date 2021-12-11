@@ -3,16 +3,20 @@
 {% block title %}Customer Satisfaction Survey{% endblock %}
 
 {% block content %}
-<h1 class="my-5">Thank you for completing the survey! {{survey.title}}</h1>
+<h1 class="my-5">Thank you for completing the {{survey.title}}!</h1>
 <p class="h5 mt-3"> We recorded the following responses from your survey:</p>
-<ul>
+<ul class="list-group">
     {% for question in survey.questions %}
-    <li>
+    <li class="list-group-item list-group-item-success  w-50">
         <b>{{question.question}}</b>
         {{ responses[loop.index0]['choice'] }}
         <i>{{ responses[loop.index0]['text'] }}</i>
     </li>
     {% endfor %}
 </ul>
+
+<form action="/">
+    <button class="btn btn-success mt-3">Restart Survey</button>
+</form>
 
 {% endblock %}
